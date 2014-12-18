@@ -1,0 +1,51 @@
+  <script type="text/javascript"
+      src="//static.twilio.com/libs/twiliojs/1.1/twilio.min.js"></script>
+  <script type="text/javascript"
+    src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js">
+  </script>
+  <link href="//static0.twilio.com/packages/quickstart/client.css" type="text/css" rel="stylesheet" />
+
+<script type="text/javascript">
+  /* Capability Tokenと紐付いたクライアントを作成する */
+  Twilio.Device.setup("<%= @token %>", {debug: true});
+
+  /* エージェントが待機中（電話応答可能状態）になったら、ログ出力する */
+  Twilio.Device.ready(function (device) {
+    $("#log").text("クライアント '<%= @client_name %>' が待機中です。");
+  });
+
+  /* エラーをログ出力する */
+  Twilio.Device.error(function (error) {
+      $("#log").text("エラー： " + error.message);
+  });
+
+  /* コール切断をログ出力する */
+  Twilio.Device.disconnect(function (conn) {
+      $("#log").text("コールを切断しました。");
+  });
+
+  /* 電話受信をリスニングし、かかってきたら応答する */
+  Twilio.Device.incoming(function (conn) {
+    $("#log").text(conn.parameters.From + "から電話がかかってきました。");
+    // 接続に応答する
+    conn.accept();
+  });
+
+  /* コールを切断 */
+  function hangup() {
+    Twilio.Device.disconnectAll();
+  }
+
+  function queue() {
+    params = {"Queue": $("#queue").val()};
+    console.log("#queue: " + $("#queue").val());
+    Twilio.Device.connect(params);
+  }
+</script>
+
+<button class="call" onclick="queue();">キューに接続</button>
+<button class="hangup" onclick="hangup();">切断</button>
+
+<input type="text" id="queue" nume="queue" placeholder="キュー名： 例）Customer Support" />
+
+<div id="log">準備中...</div>
